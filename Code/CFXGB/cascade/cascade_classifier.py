@@ -164,11 +164,11 @@ class CascadeClassifier(object):
 
         n_classes = self.n_classes
         assert n_classes == len(np.unique(y_train)), "n_classes({}) != len(unique(y)) {}".format(n_classes, np.unique(y_train))
-        
-        
-        
+
+
+
         #BEGINNNNNN
-        
+
         train_acc_list = []
         test_acc_list = []
         if(self.args.ParentCols):
@@ -179,8 +179,8 @@ class CascadeClassifier(object):
         opt_datas = [None, None, None, None]
         try:
             # probability of each cascades's estimators
-        
-            
+
+
             X_proba_train = np.zeros((n_trains, n_classes * self.n_estimators_1), dtype=np.float32)
             X_proba_test = np.zeros((n_tests, n_classes * self.n_estimators_1), dtype=np.float32)
             X_cur_train, X_cur_test = None, None
@@ -205,39 +205,39 @@ class CascadeClassifier(object):
                 else:
                     X_cur_train = X_proba_train.copy()
                     X_cur_test = X_proba_test.copy()
-  
+
                 if(self.args.ParentCols):
                     if(layer_id != 0):
                         X_cur_train = np.hstack((X_cur_train,j0))
                         X_cur_train = np.hstack((X_cur_train,j1))
                         j0 = np.zeros((n_trains,self.n_estimators_1-1),dtype=np.float32)
                         j1 = np.zeros((n_trains,self.n_estimators_1-1),dtype=np.float32)
-                
 
-                
+
+
                 X_cur_train = np.hstack((X_cur_train, X_train[:, group_starts[0]:group_ends[0]]))
                 X_cur_test = np.hstack((X_cur_test, X_test[:, group_starts[0]:group_ends[0]]))
-                
+
                 LOGGER.info("[layer={}] X_cur_train.shape={}, X_cur_test.shape={}".format(
                     layer_id, X_cur_train.shape, X_cur_test.shape))
 
-                    
+
                 # Fit on X_cur, predict to update X_proba
                 y_train_proba_li = np.zeros((n_trains, n_classes))
                 y_test_proba_li = np.zeros((n_tests, n_classes))
                 for ei, est_config in enumerate(self.est_configs):
                     est = self._init_estimators(layer_id, ei)
-                    
-                    
+
+
                     # fit_trainsform
                     test_sets = [("test", X_cur_test, y_test)] if n_tests > 0 else None
-                    
+
                     if(self.args.ParentCols):
                         y_probas,l0,l1 = est.fit_transform(X_cur_train, y_train, y_train,test_sets=test_sets, eval_metrics=self.eval_metrics,keep_model_in_mem=train_config.keep_model_in_mem)
 
                     else:
                         y_probas,_,_ = est.fit_transform(X_cur_train, y_train, y_train,test_sets=test_sets, eval_metrics=self.eval_metrics,keep_model_in_mem=train_config.keep_model_in_mem)
-                    
+
                     if(self.args.ParentCols):
                         try:
                             j0[:,ei]=l0
@@ -255,8 +255,8 @@ class CascadeClassifier(object):
                         y_test_proba_li += y_probas[1]
                     if train_config.keep_model_in_mem:
                         self._set_estimator(layer_id, ei, est)
-        
-        
+
+
                 #Feature Selection between layers
 #                print("Feature Selection - Between layers")
 #                clf = XGBClassifier(n_estimators=100, learning_rate = 0.3, max_depth = 4,verbosity =0, random_state = 0,n_jobs=-1)
@@ -264,12 +264,12 @@ class CascadeClassifier(object):
 #                X_proba_train = rfe.fit_transform(X_proba_train,y_train)
 #                ls.append(rfe.support_)
 #                print(ls)
-#                
-        
+#
+
                 y_train_proba_li /= len(self.est_configs)
-                
-              
-                
+
+
+
                 train_avg_acc = calc_accuracy(y_train, np.argmax(y_train_proba_li, axis=1), 'layer_{} - train.classifier_average'.format(layer_id))
                 train_acc_list.append(train_avg_acc)
                 if n_tests > 0:
@@ -306,9 +306,9 @@ class CascadeClassifier(object):
                     self.save_data(data_save_dir, layer_id, *opt_datas)
                 # inc layer_id
                 layer_id += 1
-                    
-                    
-                    
+
+
+
             LOGGER.info("[Result][Reach Max Layer] opt_layer_num={}, accuracy_train={:.2f}%".format(
                 opt_layer_id + 1, train_acc_list[opt_layer_id]))
             if data_save_dir is not None:
@@ -322,7 +322,7 @@ class CascadeClassifier(object):
         if not type(X_groups_test) == list:
             X_groups_test = [X_groups_test]
         LOGGER.info("X_groups_test.shape={}".format([xt.shape for xt in X_groups_test]))
-        
+
         group_starts, group_ends, group_dims, X_test = self._check_group_dims(X_groups_test, False)
         LOGGER.info("group_dims={}".format(group_dims))
         LOGGER.info("X_test.shape={}".format(X_test.shape))
@@ -349,8 +349,8 @@ class CascadeClassifier(object):
                     j0 = np.zeros((n_tests,self.n_estimators_1-1),dtype=np.float32)
                     j1 = np.zeros((n_tests,self.n_estimators_1-1),dtype=np.float32)
 
-        
-            
+
+
             X_cur_test = np.hstack((X_cur_test, X_test[:, group_starts[0]:group_ends[0]]))
             LOGGER.info("[layer={}] X_cur_test.shape={}".format(
                 layer_id, X_cur_test.shape))
@@ -364,8 +364,8 @@ class CascadeClassifier(object):
                     y_probas,l0,l1 = est.predict_proba(X_cur_test)
                 else:
                     y_probas,_,_ = est.predict_proba(X_cur_test)
-    
-                
+
+
                 X_proba_test[:, ei * n_classes:ei * n_classes + n_classes] = y_probas
                 if(self.args.ParentCols):
                     try:
@@ -373,7 +373,7 @@ class CascadeClassifier(object):
                         j1[:,ei]= l1
                     except:
                         pass
-            
+
         if(self.args.ParentCols):
             X_proba_test = np.hstack((X_proba_test,j0,j1))
         return X_proba_test
