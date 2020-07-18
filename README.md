@@ -28,9 +28,21 @@ We have included demo code for execution and a detailed explanation of how you c
 
 *If facing issues downloading xgboost package, use this conda command*
 
-*```conda install py-xgboost```*
+```conda install py-xgboost```
 
-* Datasets Used in [1] -   
+* python==3.7.3
+* numpy==1.16.4
+* pandas==0.24.2
+* argparse
+* joblib==0.13.2
+* psutil==5.7.0
+* scikit-learn==0.21.2
+* imblearn==0.5.0
+* scipy==1.2.1
+* simplejson
+* xgboost==0.90
+
+### Datasets Used    
 
   - TalkingData : https://www.kaggle.com/c/talkingdata-adtracking-fraud-detection
   - Avazu : https://www.kaggle.com/c/avazu-ctr-prediction/data
