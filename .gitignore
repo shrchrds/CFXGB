@@ -10,4 +10,5 @@
 /Code/CFXGB/estimators/__pycache__
 /Code/CFXGB/estimators/*.pyc
 /Code/CFXGB/cascade/__pycache__
+/Code/CFXGB/cascade/*.pyc
 /Code/Tree_parsing_test.py
