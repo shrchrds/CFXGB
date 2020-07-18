@@ -69,7 +69,7 @@ We have included demo code for execution and a detailed explanation of how you c
     │   ├── ParametersTest.json
     ├── README.md
     ├── images
-    │   └── Pipeline3.png
+    │   └── Pipeline2.png
     └── requirements.txt
 
 
