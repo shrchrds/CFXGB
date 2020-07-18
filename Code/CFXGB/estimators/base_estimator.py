@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-
 import os, os.path as osp
 import numpy as np
 
@@ -55,6 +54,7 @@ class BaseClassifierWrapper(object):
         else:
             # keep in memory
             self.est = est
+        return est
 
     def predict_proba(self, X, cache_dir=None, batch_size=None):
         LOGGER.debug("X.shape={}".format(X.shape))

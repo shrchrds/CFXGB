@@ -1,13 +1,9 @@
-# -*- coding:utf-8 -*-
 
 import os, os.path as osp
 import numpy as np
 from sklearn.model_selection import KFold, StratifiedKFold
-from joblib import Parallel, delayed
-#from numba import njit
 from ..utils.log_utils import get_logger
 from ..utils.cache_utils import name2path
-from .sklearn_estimators import GCXGBClassifier
 from xgboost import XGBClassifier
 
 LOGGER = get_logger("gcforest.estimators.kfold_wrapper")
@@ -26,7 +22,7 @@ class KFoldWrapper(object):
         est_class (class):
             Class of estimator
         args:
-            For Parallelisation
+            args
         est_args (dict):
             Arguments of estimator
         random_state (int):
@@ -39,20 +35,7 @@ class KFoldWrapper(object):
         self.random_state = random_state
         self.estimator1d = [None for k in range(self.n_folds)]
         self.estimatorec = [None for k in range(self.n_folds)]
-
-
         self.args = args
-        if(self.args.ParentCols):
-            #For Parallelisation - Train
-            self.esti = None
-            self.X = None
-            self.n_dims= None
-            self.val_idx = None
-
-            #For Parallelisation - Test
-            self.n_datas= None
-            self.l0 = None
-            self.l1 = None
 
 
     def _init_estimator(self, k):
@@ -80,56 +63,42 @@ class KFoldWrapper(object):
             else:
                 skf = StratifiedKFold(n_splits=self.n_folds, shuffle=True, random_state=self.random_state)
                 cv = [(t, v) for (t, v) in skf.split(range(n_stratify), y_stratify)]
+
+        #print("cv",cv[0])
+
         # Fit
         y_probas = []
         n_dims = X.shape[-1]
         n_datas = X.size / n_dims
         inverse = False
+        n_classes = len(np.unique(y))
 
         if(self.args.ParentCols):
-            _, val_idx = cv[0]
-            l0 = np.zeros((n_stratify, ), dtype=np.float32)
-            l1 = np.zeros((n_stratify, ), dtype=np.float32)
-            esti = None
+            par_col_est = np.zeros((n_stratify,n_classes*self.args.ParentCols), dtype=np.float32)
 
 
         for k in range(self.n_folds):
             est = self._init_estimator(k)
+            # print(est)
             if not inverse:
                 train_idx, val_idx = cv[k]
             else:
                 val_idx, train_idx = cv[k]
+
             # fit on k-fold train
-            est.fit(X[train_idx].reshape((-1, n_dims)), y[train_idx].reshape(-1), cache_dir=cache_dir)
-
-            if(self.args.ParentCols):
-                esti = est._init_estimator()   #Need RFClassifier not GCRFClassifier
-
-                esti.fit(X[train_idx].reshape((-1, n_dims)), y[train_idx].reshape(-1))  #Without this there is no estimators_
-                self.estimatorec[k] = esti
-                #print("Fit - ",k)
-                if(not isinstance(esti,XGBClassifier)):
-
-                    #s0,s1=self.extracolsTrain(esti,X,n_dims,val_idx)
-                    #s0 = Parallel(n_jobs=-1, verbose=0, prefer = "threads", backend="threading")(delayed(self.extracolsTrain)(esti,X,n_dims,val_idx)
-                    self.esti = esti
-                    self.X = X
-                    self.n_dims = n_dims
-                    self.val_idx = val_idx
-                    ls = Parallel(n_jobs=self.args.Cores, verbose=0, prefer = "threads", backend="threading")(delayed(self.extracolsTrain)(i) for i in range(len(X[val_idx].reshape((-1, n_dims)))))
-
-
-                    s0 = [i for i,j in ls]
-                    s1 = [j for i,j in ls]
-
-
-                    l0[val_idx]=s0
-                    l1[val_idx] =s1
+            esti = est.fit(X[train_idx].reshape((-1, n_dims)), y[train_idx].reshape(-1),cache_dir=cache_dir)
 
 
             # predict on k-fold validation
-            y_proba = est.predict_proba(X[val_idx].reshape((-1, n_dims)), cache_dir=cache_dir)
+            y_proba = est.predict_proba(X[val_idx].reshape((-1, n_dims)))
             self.log_eval_metrics(self.name, y[val_idx], y_proba, eval_metrics, "train_{}".format(k))
+
+            if(self.args.ParentCols):
+
+                self.estimatorec[k] = esti
+                if(not isinstance(esti,XGBClassifier)):
+                    par_col_est[val_idx] = self.extracols(esti,data=X[val_idx].reshape((-1, n_dims)),n_classes=n_classes,num_cols=self.args.ParentCols,Train=True)
+
 
             # merging result
             if k == 0:
@@ -157,12 +126,12 @@ class KFoldWrapper(object):
                     y_probas[vi + 1] += y_proba
 
 
-
-
         if inverse and self.n_folds > 1:
             y_probas[0] /= (self.n_folds - 1)
         for y_proba in y_probas[1:]:
             y_proba /= self.n_folds
+
+
         # log
         self.log_eval_metrics(self.name, y, y_probas[0], eval_metrics, "train_cv")
 
@@ -172,72 +141,34 @@ class KFoldWrapper(object):
 
         if(self.args.ParentCols):
             if(isinstance(esti,XGBClassifier)):
-                return y_probas,None,None
+                return y_probas,None, False
 
-            return y_probas,l0,l1
+            return y_probas,par_col_est, True
         else:
-            return y_probas,None,None
-
-    def extracolsTrain(self,i):
+            return y_probas,None, False
 
 
-        retls = []
-        sum_0 = [0] * (len(self.X[self.val_idx].reshape((-1, self.n_dims))))
-        sum_1 = [0] * (len(self.X[self.val_idx].reshape((-1, self.n_dims))))
-        l=0
-
-        for j, tree in enumerate(self.esti.estimators_):
-            value = tree.tree_.value
-            node_indicator = tree.decision_path(self.X[self.val_idx].reshape((-1, self.n_dims)))
-            node_index = node_indicator.indices[node_indicator.indptr[i]:node_indicator.indptr[i + 1]]
-            #print(value[node_index[-2]])
-            l+=1
-            sum_0[i]+=(value[node_index[-2]][0][0]/(value[node_index[-2]][0][0]+value[node_index[-2]][0][1]))
-            sum_1[i]+=(value[node_index[-2]][0][1]/(value[node_index[-2]][0][0]+value[node_index[-2]][0][1]))
-
-
-        sum_0[i]/=l
-        sum_1[i]/=l
-        retls = [sum_0[i],sum_1[i]]
-        return retls
-
-
-    def predict_proba(self, X_test):
+    def predict_proba(self, X_test, n_classes):
         assert 2 <= len(X_test.shape) <= 3, "X_test.shape should be n x k or n x n2 x k"
         # K-Fold split
         n_dims = X_test.shape[-1]
         n_datas = X_test.size // n_dims
         if(self.args.ParentCols):
-            l0 = np.zeros((n_datas, ), dtype=np.float32)
-            l1 = np.zeros((n_datas, ), dtype=np.float32)
+            par_col_est = np.zeros((n_datas,n_classes*self.args.ParentCols), dtype=np.float32)
             esti = None
+
         for k in range(self.n_folds):
-
-
-            ######################################################################################
-            #TESTING - ADDITION OF COLUMNS
             if(self.args.ParentCols):
                 esti = self.estimatorec[k]
                 if(not isinstance(esti,XGBClassifier)):
-                #self.extracolsTest(esti,X_test,n_datas,n_dims,l0,l1)
-                    self.esti = esti
-                    self.X=X_test
-                    self.n_datas = n_datas
-                    self.n_dims = n_dims
-                    self.l0 = l0
-                    self.l1 = l1
-                    Parallel(n_jobs=self.args.Cores, verbose=0, prefer = "threads", backend="threading")(delayed(self.extracolsTest)(i) for i in range(n_datas))
 
-                else:
-                    esti = None
+                    par_col_est+= self.extracols(esti,data=X_test.reshape((-1, n_dims)),n_classes=n_classes,num_cols=self.args.ParentCols,Train=True)
 
 
-            ######################################################################################
 
             est = self.estimator1d[k]
             y_proba = est.predict_proba(X_test.reshape((-1, n_dims)), cache_dir=None)
-#            if len(X_test.shape) == 3:
-#                y_proba = y_proba.reshape((X_test.shape[0], X_test.shape[1], y_proba.shape[-1]))
+
             if k == 0:
                 y_proba_kfolds = y_proba
             else:
@@ -245,50 +176,48 @@ class KFoldWrapper(object):
 
 
         y_proba_kfolds /= self.n_folds
-        if(self.args.ParentCols):
-            l0 = self.l0
-            l1  = self.l1
-            try:
-                l0/=(self.n_folds)
-                l1/=(self.n_folds)
-            except:
-                pass
+        if(self.args.ParentCols and esti!=None):
+            par_col_est/=self.n_folds
 
 
         if(self.args.ParentCols):
-            if(esti == None):
-                return y_proba_kfolds,None,None
+            if(isinstance(esti,XGBClassifier)):
+                return y_proba_kfolds,None,False
 
-            return y_proba_kfolds,l0,l1
+            return y_proba_kfolds,par_col_est,True
         else:
-            return y_proba_kfolds,None,None
+            return y_proba_kfolds,None,False
 
 
-    def extracolsTest(self,i):
-        #esti.predict(X_test.reshape((-1, n_dims)))
+    def extracols(self,esti,data,n_classes,num_cols,Train=True):
 
 
-        esti = self.esti
-        X_test = self.X
-        n_datas = self.n_datas
-        n_dims = self.n_dims
-
-
-
-        sum_0=0
-        sum_1 = 0
+        l1 = len(data)
+        cols = np.zeros((l1,num_cols*n_classes))
         l=0
+
         for j, tree in enumerate(esti.estimators_):
             value = tree.tree_.value
-            node_indicator = tree.decision_path(X_test.reshape((-1, n_dims)))
-            node_index = node_indicator.indices[node_indicator.indptr[i]:node_indicator.indptr[i + 1]]
-            #print(value[node_index[-2]])
-            l+=1
-            sum_0+=(value[node_index[-2]][0][0]/(value[node_index[-2]][0][0]+value[node_index[-2]][0][1]))
-            sum_1+=(value[node_index[-2]][0][1]/(value[node_index[-2]][0][0]+value[node_index[-2]][0][1]))
+            node_indicator = tree.decision_path(data)
+            for i in range(len(data)):
+                node_index = node_indicator.indices[node_indicator.indptr[i]:node_indicator.indptr[i + 1]]
+                if len(node_index)<num_cols+1: # Need to exclude leaf node
+                    add_list = [node_index[-1]]*(num_cols-len(node_index)+1)  # Concatenating the leaf node so it's distribution will be used here.
+                    node_index = np.concatenate((add_list,node_index),axis=0)
 
-        self.l0[i]+=sum_0/l
-        self.l1[i]+=sum_1/l
+                node_len = len(node_index)
+                node_index = node_index[::-1] # To reverse the list
+                list = node_index[1:num_cols+1]
+
+                # For each level in the tree, we obtain parent node and get class distributions
+                for n in range(num_cols):
+                    cols[i][n*n_classes:n*n_classes+n_classes]+= value[list[n]][0]/np.sum(value[list[n]][0])
+
+            l+=1
+
+        cols/=l
+        return cols
+
 
     def log_eval_metrics(self, est_name, y_true, y_proba, eval_metrics, y_name):
         """

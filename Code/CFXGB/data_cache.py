@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 
 import os, os.path as osp
 import numpy as np
@@ -30,20 +31,20 @@ class DataCache(object):
     def keep_in_mem(self, phase, data_name):
         """
         determine if the data for (phase, data_name) should be kept in RAM
-        if config["keep_in_mem"][data_name] exist, then use it, otherwise use the default value of config["keep_in_mem"] 
+        if config["keep_in_mem"][data_name] exist, then use it, otherwise use the default value of config["keep_in_mem"]
         """
         return self.config["keep_in_mem"].get(data_name, self.config["keep_in_mem"]["default"])
 
     def cache_in_disk(self, phase, data_name):
         """
         check data for (phase, data_name) is cached in disk
-        if config["cache_in_disk"][data_name] exist, then use it , otherwise use default value of config["cache_in_disk"]  
+        if config["cache_in_disk"][data_name] exist, then use it , otherwise use default value of config["cache_in_disk"]
         """
         return self.config["cache_in_disk"].get(data_name, self.config["cache_in_disk"]["default"])
 
     def is_exist(self, phase, data_name):
         """
-        check data_name is generated or cashed to disk 
+        check data_name is generated or cashed to disk
         """
         data_mem = self.datas[phase].get(data_name, None)
         if data_mem is not None:
@@ -64,12 +65,12 @@ class DataCache(object):
 
     def get(self, phase, data_name, ignore_no_exist=False):
         """
-        get data according to data_name 
+        get data according to data_name
 
         Arguments
         ---------
         phase (str): train or test
-        data_name (str): name for tops/bottoms  
+        data_name (str): name for tops/bottoms
         ignore_no_exist (bool): if True, when no data found, return None, otherwise raise e
         """
         assert isinstance(data_name, basestring), "data_name={}, type(data_name)={}".format(data_name, type(data_name))
@@ -96,7 +97,7 @@ class DataCache(object):
 
     def update(self, phase, data_name, data):
         """
-        update (phase, data_name) data in cache  
+        update (phase, data_name) data in cache
         """
         assert isinstance(data, np.ndarray), "data(type={}) is not a np.ndarray!!!".format(type(data))
         if self.keep_in_mem(phase, data_name):

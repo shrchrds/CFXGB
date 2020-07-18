@@ -8,9 +8,9 @@ from ..estimators import get_estimator_kfold
 from ..utils.config_utils import get_config_value
 from ..utils.log_utils import get_logger
 from ..utils.metrics import accuracy_pb
-
-from xgboost import XGBClassifier
+from ..estimators.sklearn_estimators import GCXGBClassifier
 from sklearn.feature_selection import RFECV
+import time
 
 
 LOGGER = get_logger('CFXGB.cascade.cascade_classifier')
@@ -97,11 +97,11 @@ class CascadeClassifier(object):
         est_type = est_args["type"]
         est_args.pop("type")
         # random_state
-        if self.random_state is not None:
-            random_state = (self.random_state + hash("[estimator] {}".format(est_name))) % 1000000007
-        else:
-            random_state = None
-        return get_estimator_kfold(est_name, n_folds, est_type, est_args, self.args,random_state=random_state)
+#        if self.random_state is not None:
+#            random_state = (self.random_state + hash("[estimator] {}".format(est_name))) % 1000000007
+#        else:
+#            random_state = None
+        return get_estimator_kfold(est_name, n_folds, est_type, est_args, self.args,random_state=self.random_state)
 
 #
 
@@ -169,22 +169,31 @@ class CascadeClassifier(object):
 
         #BEGINNNNNN
 
+
         train_acc_list = []
         test_acc_list = []
-        if(self.args.ParentCols):
-            j0 = np.zeros((n_trains,self.n_estimators_1-1),dtype=np.float32)
-            j1 = np.zeros((n_trains,self.n_estimators_1-1),dtype=np.float32)
 
         # X_train, y_train, X_test, y_test
         opt_datas = [None, None, None, None]
         try:
             # probability of each cascades's estimators
-
-
             X_proba_train = np.zeros((n_trains, n_classes * self.n_estimators_1), dtype=np.float32)
             X_proba_test = np.zeros((n_tests, n_classes * self.n_estimators_1), dtype=np.float32)
+
+
+            self.xgb_count =0
+            for i in self.est_configs:
+                if(i['type']=='XGBClassifier'):
+                    self.xgb_count+=1
+
+            if(self.args.ParentCols):
+                par_cols = np.zeros((n_trains,n_classes*self.args.ParentCols*(self.n_estimators_1-self.xgb_count)),dtype=np.float32)
+
+
             X_cur_train, X_cur_test = None, None
             layer_id = 0
+            opt_layer_id =-1
+
             while 1:
                 try:
                     print( "Max Layers : ")
@@ -206,13 +215,10 @@ class CascadeClassifier(object):
                     X_cur_train = X_proba_train.copy()
                     X_cur_test = X_proba_test.copy()
 
-                if(self.args.ParentCols):
-                    if(layer_id != 0):
-                        X_cur_train = np.hstack((X_cur_train,j0))
-                        X_cur_train = np.hstack((X_cur_train,j1))
-                        j0 = np.zeros((n_trains,self.n_estimators_1-1),dtype=np.float32)
-                        j1 = np.zeros((n_trains,self.n_estimators_1-1),dtype=np.float32)
+                    if(self.args.ParentCols):
 
+                        X_cur_train = np.hstack((X_cur_train,par_cols))
+                        par_cols = np.zeros((n_trains,n_classes*self.args.ParentCols*(self.n_estimators_1-self.xgb_count)),dtype=np.float32)
 
 
                 X_cur_train = np.hstack((X_cur_train, X_train[:, group_starts[0]:group_ends[0]]))
@@ -226,24 +232,17 @@ class CascadeClassifier(object):
                 y_train_proba_li = np.zeros((n_trains, n_classes))
                 y_test_proba_li = np.zeros((n_tests, n_classes))
                 for ei, est_config in enumerate(self.est_configs):
+                    t1 = time.time()
                     est = self._init_estimators(layer_id, ei)
-
 
                     # fit_trainsform
                     test_sets = [("test", X_cur_test, y_test)] if n_tests > 0 else None
 
-                    if(self.args.ParentCols):
-                        y_probas,l0,l1 = est.fit_transform(X_cur_train, y_train, y_train,test_sets=test_sets, eval_metrics=self.eval_metrics,keep_model_in_mem=train_config.keep_model_in_mem)
 
-                    else:
-                        y_probas,_,_ = est.fit_transform(X_cur_train, y_train, y_train,test_sets=test_sets, eval_metrics=self.eval_metrics,keep_model_in_mem=train_config.keep_model_in_mem)
+                    y_probas,par_col_est,flag  = est.fit_transform(X_cur_train, y_train, y_train,test_sets=test_sets, eval_metrics=self.eval_metrics,keep_model_in_mem=train_config.keep_model_in_mem)
 
-                    if(self.args.ParentCols):
-                        try:
-                            j0[:,ei]=l0
-                            j1[:,ei]= l1
-                        except:
-                            pass
+                    if(self.args.ParentCols and flag):
+                        par_cols[:,ei*n_classes*self.args.ParentCols:ei * n_classes*self.args.ParentCols + n_classes*self.args.ParentCols] = par_col_est
 
                     # train
                     X_proba_train[:, ei * n_classes: ei * n_classes + n_classes] = y_probas[0]
@@ -256,15 +255,7 @@ class CascadeClassifier(object):
                     if train_config.keep_model_in_mem:
                         self._set_estimator(layer_id, ei, est)
 
-
-                #Feature Selection between layers
-#                print("Feature Selection - Between layers")
-#                clf = XGBClassifier(n_estimators=100, learning_rate = 0.3, max_depth = 4,verbosity =0, random_state = 0,n_jobs=-1)
-#                rfe = RFECV(clf, step=1, cv=5, verbose=0)
-#                X_proba_train = rfe.fit_transform(X_proba_train,y_train)
-#                ls.append(rfe.support_)
-#                print(ls)
-#
+                    LOGGER.info("Time taken for estimator : {}".format(time.time()-t1))
 
                 y_train_proba_li /= len(self.est_configs)
 
@@ -299,7 +290,8 @@ class CascadeClassifier(object):
                     self.opt_layer_num = opt_layer_id + 1
 
                     if(self.args.ParentCols):
-                        opt_datas[0] = np.hstack((opt_datas[0],j0,j1))
+                        opt_datas[0] = np.hstack((opt_datas[0],par_cols))
+
                     return opt_layer_id, opt_datas[0], opt_datas[1], opt_datas[2], opt_datas[3]
                 # save opt data if needed
                 if self.data_save_rounds > 0 and (layer_id + 1) % self.data_save_rounds == 0:
@@ -334,8 +326,8 @@ class CascadeClassifier(object):
         X_proba_test = np.zeros((X_test.shape[0], n_classes * self.n_estimators_1), dtype=np.float32)
         X_cur_test = None
         if(self.args.ParentCols):
-            j0 = np.zeros((n_tests,self.n_estimators_1-1),dtype=np.float32)
-            j1 = np.zeros((n_tests,self.n_estimators_1-1),dtype=np.float32)
+            par_cols = np.zeros((n_tests,n_classes*self.args.ParentCols*(self.n_estimators_1-self.xgb_count)),dtype=np.float32)
+
         for layer_id in range(self.opt_layer_num):
             # Copy previous cascades's probability into current X_cur
             if layer_id == 0:
@@ -344,11 +336,8 @@ class CascadeClassifier(object):
             else:
                 X_cur_test = X_proba_test.copy()
                 if(self.args.ParentCols):
-                    X_cur_test = np.hstack((X_cur_test,j0))
-                    X_cur_test = np.hstack((X_cur_test,j1))
-                    j0 = np.zeros((n_tests,self.n_estimators_1-1),dtype=np.float32)
-                    j1 = np.zeros((n_tests,self.n_estimators_1-1),dtype=np.float32)
-
+                    X_cur_test = np.hstack((X_cur_test,par_cols))
+                    par_cols = np.zeros((n_tests,n_classes*self.args.ParentCols*(self.n_estimators_1-self.xgb_count)),dtype=np.float32)
 
 
             X_cur_test = np.hstack((X_cur_test, X_test[:, group_starts[0]:group_ends[0]]))
@@ -360,22 +349,15 @@ class CascadeClassifier(object):
                     raise ValueError("model (li={}, ei={}) not present, maybe you should set keep_model_in_mem to True".format(
                         layer_id, ei))
 
-                if(self.args.ParentCols):
-                    y_probas,l0,l1 = est.predict_proba(X_cur_test)
-                else:
-                    y_probas,_,_ = est.predict_proba(X_cur_test)
-
-
+                y_probas,par_col_est,flag = est.predict_proba(X_cur_test,self.n_classes)
                 X_proba_test[:, ei * n_classes:ei * n_classes + n_classes] = y_probas
-                if(self.args.ParentCols):
-                    try:
-                        j0[:,ei]=l0
-                        j1[:,ei]= l1
-                    except:
-                        pass
+
+                if(self.args.ParentCols and flag):
+                    par_cols[:,ei*n_classes*self.args.ParentCols:ei * n_classes*self.args.ParentCols + n_classes*self.args.ParentCols] = par_col_est
 
         if(self.args.ParentCols):
-            X_proba_test = np.hstack((X_proba_test,j0,j1))
+            X_proba_test = np.hstack((X_proba_test,par_cols))
+
         return X_proba_test
 
     def predict_proba(self, X):
