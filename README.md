@@ -72,9 +72,15 @@ We have included demo code for execution and a detailed explanation of how you c
     │   └── Pipeline3.png
     └── requirements.txt
 
+
+
 ### Running demo code
 
-First change directories to the Code directory
+To run the model, first change directories to the Code directory
+
+```cd code```
+
+Now to run a dataset like Kad with parameters in DefaultParameters.json, run this :
 
 ```python3 Main.py -d Kad -p DefaultParameters.json```
 
