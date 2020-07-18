@@ -38,7 +38,43 @@ We have included demo code for execution and a detailed explanation of how you c
   - UNSW : https://www.unsw.adfa.edu.au/unsw-canberra-cyber/cybersecurity/ADFA-NB15-Datasets/
   - CICID : https://www.unb.ca/cic/datasets/ids-2017.html
 
+### Repository Structure
+
+    .
+    ├── Code
+    │   ├── CFXGB
+    │   │   ├── CFXGB.py
+    │   │   ├── __init__.py
+    │   │   ├── cascade
+    │   │   │   ├── __init__.py
+    │   │   │   ├── cascade_classifier.py
+    │   │   ├── config.py
+    │   │   ├── data_cache.py
+    │   │   ├── estimators
+    │   │   │   ├── __init__.py
+    │   │   │   ├── base_estimator.py
+    │   │   │   ├── kfold_wrapper.py
+    │   │   │   ├── sklearn_estimators.py
+    │   │   ├── exp_utils.py
+    │   │   └── utils
+    │   │       ├── __init__.py
+    │   │       ├── cache_utils.py
+    │   │       ├── config_utils.py
+    │   │       ├── debug_utils.py
+    │   │       ├── log_utils.py
+    │   │       ├── metrics.py
+    │   ├── DefaultParameters.json
+    │   ├── Main.py
+    │   ├── Parameters.json
+    │   ├── ParametersTest.json
+    ├── README.md
+    ├── images
+    │   └── Pipeline3.png
+    └── requirements.txt
+
 ### Running demo code
+
+First change directories to the Code directory
 
 ```python3 Main.py -d Kad -p DefaultParameters.json```
 
