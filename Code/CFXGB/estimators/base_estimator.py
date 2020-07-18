@@ -1,12 +1,5 @@
 # -*- coding:utf-8 -*-
-"""
-Description: A python 2.7 implementation of gcForest proposed in [1]. A demo implementation of gcForest library as well as some demo client scripts to demostrate how to use the code. The implementation is flexible enough for modifying the model or
-fit your own datasets. 
-Reference: [1] Z.-H. Zhou and J. Feng. Deep Forest: Towards an Alternative to Deep Neural Networks. In IJCAI-2017.  (https://arxiv.org/abs/1702.08835v2 )
-Requirements: This package is developed with Python 2.7, please make sure all the demendencies are installed, which is specified in requirements.txt
-ATTN: This package is free for academic usage. You can run it at your own risk. For other purposes, please contact Prof. Zhi-Hua Zhou(zhouzh@lamda.nju.edu.cn)
-ATTN2: This package was developed by Mr.Ji Feng(fengj@lamda.nju.edu.cn). The readme file and demo roughly explains how to use the codes. For any problem concerning the codes, please feel free to contact Mr.Feng. 
-"""
+
 import os, os.path as osp
 import numpy as np
 
@@ -41,10 +34,10 @@ class BaseClassifierWrapper(object):
 
     def fit(self, X, y, cache_dir=None):
         """
-        cache_dir(str): 
+        cache_dir(str):
             if not None
                 then if there is something in cache_dir, dont have fit the thing all over again
-                otherwise, fit it and save to model cache 
+                otherwise, fit it and save to model cache
         """
         LOGGER.debug("X_train.shape={}, y_train.shape={}".format(X.shape, y.shape))
         cache_path = self._cache_path(cache_dir)
@@ -57,7 +50,7 @@ class BaseClassifierWrapper(object):
         if cache_path is not None:
             # saved in disk
             LOGGER.info("Save estimator to {} ...".format(cache_path))
-            check_dir(cache_path); 
+            check_dir(cache_path);
             self._save_model_to_disk(est, cache_path)
         else:
             # keep in memory
@@ -115,7 +108,7 @@ class BaseClassifierWrapper(object):
 
     def _default_predict_batch_size(self, est, X):
         """
-        You can re-implement this function when inherient this class 
+        You can re-implement this function when inherient this class
 
         Return
         ------

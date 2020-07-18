@@ -1,12 +1,5 @@
 # -*- coding:utf-8 -*-
-"""
-Description: A python 2.7 implementation of gcForest proposed in [1]. A demo implementation of gcForest library as well as some demo client scripts to demostrate how to use the code. The implementation is flexible enough for modifying the model or
-fit your own datasets. 
-Reference: [1] Z.-H. Zhou and J. Feng. Deep Forest: Towards an Alternative to Deep Neural Networks. In IJCAI-2017.  (https://arxiv.org/abs/1702.08835v2 )
-Requirements: This package is developed with Python 2.7, please make sure all the demendencies are installed, which is specified in requirements.txt
-ATTN: This package is free for academic usage. You can run it at your own risk. For other purposes, please contact Prof. Zhi-Hua Zhou(zhouzh@lamda.nju.edu.cn)
-ATTN2: This package was developed by Mr.Ji Feng(fengj@lamda.nju.edu.cn). The readme file and demo roughly explains how to use the codes. For any problem concerning the codes, please feel free to contact Mr.Feng. 
-"""
+
 import os, os.path as osp
 import numpy as np
 from sklearn.model_selection import KFold, StratifiedKFold
@@ -27,7 +20,7 @@ class KFoldWrapper(object):
         """
         Parameters
         ----------
-        n_folds (int): 
+        n_folds (int):
             Number of folds.
             If n_folds=1, means no K-Fold
         est_class (class):
@@ -46,8 +39,8 @@ class KFoldWrapper(object):
         self.random_state = random_state
         self.estimator1d = [None for k in range(self.n_folds)]
         self.estimatorec = [None for k in range(self.n_folds)]
-    
-    
+
+
         self.args = args
         if(self.args.ParentCols):
             #For Parallelisation - Train
@@ -55,12 +48,12 @@ class KFoldWrapper(object):
             self.X = None
             self.n_dims= None
             self.val_idx = None
-        
+
             #For Parallelisation - Test
             self.n_datas= None
             self.l0 = None
             self.l1 = None
-        
+
 
     def _init_estimator(self, k):
         est_args = self.est_args.copy()
@@ -98,8 +91,8 @@ class KFoldWrapper(object):
             l0 = np.zeros((n_stratify, ), dtype=np.float32)
             l1 = np.zeros((n_stratify, ), dtype=np.float32)
             esti = None
-        
-        
+
+
         for k in range(self.n_folds):
             est = self._init_estimator(k)
             if not inverse:
@@ -108,15 +101,15 @@ class KFoldWrapper(object):
                 val_idx, train_idx = cv[k]
             # fit on k-fold train
             est.fit(X[train_idx].reshape((-1, n_dims)), y[train_idx].reshape(-1), cache_dir=cache_dir)
-            
+
             if(self.args.ParentCols):
                 esti = est._init_estimator()   #Need RFClassifier not GCRFClassifier
-                
+
                 esti.fit(X[train_idx].reshape((-1, n_dims)), y[train_idx].reshape(-1))  #Without this there is no estimators_
                 self.estimatorec[k] = esti
                 #print("Fit - ",k)
                 if(not isinstance(esti,XGBClassifier)):
-                    
+
                     #s0,s1=self.extracolsTrain(esti,X,n_dims,val_idx)
                     #s0 = Parallel(n_jobs=-1, verbose=0, prefer = "threads", backend="threading")(delayed(self.extracolsTrain)(esti,X,n_dims,val_idx)
                     self.esti = esti
@@ -125,14 +118,14 @@ class KFoldWrapper(object):
                     self.val_idx = val_idx
                     ls = Parallel(n_jobs=self.args.Cores, verbose=0, prefer = "threads", backend="threading")(delayed(self.extracolsTrain)(i) for i in range(len(X[val_idx].reshape((-1, n_dims)))))
 
-    
+
                     s0 = [i for i,j in ls]
                     s1 = [j for i,j in ls]
-                
+
 
                     l0[val_idx]=s0
                     l1[val_idx] =s1
-                
+
 
             # predict on k-fold validation
             y_proba = est.predict_proba(X[val_idx].reshape((-1, n_dims)), cache_dir=cache_dir)
@@ -145,14 +138,14 @@ class KFoldWrapper(object):
                 #print(2)
 
                 y_probas.append(y_proba_cv)
-                
-                
+
+
             y_probas[0][val_idx, :] += y_proba
 
             if keep_model_in_mem:
                 self.estimator1d[k] = est
-            
-            
+
+
             # test
             for vi, (prefix, X_test, y_test) in enumerate(test_sets):
                 y_proba = est.predict_proba(X_test.reshape((-1, n_dims)), cache_dir=cache_dir)
@@ -162,10 +155,10 @@ class KFoldWrapper(object):
                     y_probas.append(y_proba)
                 else:
                     y_probas[vi + 1] += y_proba
-                        
-                      
-        
-        
+
+
+
+
         if inverse and self.n_folds > 1:
             y_probas[0] /= (self.n_folds - 1)
         for y_proba in y_probas[1:]:
@@ -184,15 +177,15 @@ class KFoldWrapper(object):
             return y_probas,l0,l1
         else:
             return y_probas,None,None
-            
+
     def extracolsTrain(self,i):
 
-        
+
         retls = []
         sum_0 = [0] * (len(self.X[self.val_idx].reshape((-1, self.n_dims))))
         sum_1 = [0] * (len(self.X[self.val_idx].reshape((-1, self.n_dims))))
         l=0
-        
+
         for j, tree in enumerate(self.esti.estimators_):
             value = tree.tree_.value
             node_indicator = tree.decision_path(self.X[self.val_idx].reshape((-1, self.n_dims)))
@@ -201,8 +194,8 @@ class KFoldWrapper(object):
             l+=1
             sum_0[i]+=(value[node_index[-2]][0][0]/(value[node_index[-2]][0][0]+value[node_index[-2]][0][1]))
             sum_1[i]+=(value[node_index[-2]][0][1]/(value[node_index[-2]][0][0]+value[node_index[-2]][0][1]))
-        
-        
+
+
         sum_0[i]/=l
         sum_1[i]/=l
         retls = [sum_0[i],sum_1[i]]
@@ -219,8 +212,8 @@ class KFoldWrapper(object):
             l1 = np.zeros((n_datas, ), dtype=np.float32)
             esti = None
         for k in range(self.n_folds):
-            
-            
+
+
             ######################################################################################
             #TESTING - ADDITION OF COLUMNS
             if(self.args.ParentCols):
@@ -234,11 +227,11 @@ class KFoldWrapper(object):
                     self.l0 = l0
                     self.l1 = l1
                     Parallel(n_jobs=self.args.Cores, verbose=0, prefer = "threads", backend="threading")(delayed(self.extracolsTest)(i) for i in range(n_datas))
-                
+
                 else:
                     esti = None
-            
-            
+
+
             ######################################################################################
 
             est = self.estimator1d[k]
@@ -249,8 +242,8 @@ class KFoldWrapper(object):
                 y_proba_kfolds = y_proba
             else:
                 y_proba_kfolds += y_proba
-                
-                
+
+
         y_proba_kfolds /= self.n_folds
         if(self.args.ParentCols):
             l0 = self.l0
@@ -260,27 +253,27 @@ class KFoldWrapper(object):
                 l1/=(self.n_folds)
             except:
                 pass
-        
+
 
         if(self.args.ParentCols):
             if(esti == None):
                 return y_proba_kfolds,None,None
-            
+
             return y_proba_kfolds,l0,l1
         else:
             return y_proba_kfolds,None,None
 
-    
+
     def extracolsTest(self,i):
         #esti.predict(X_test.reshape((-1, n_dims)))
-        
-        
+
+
         esti = self.esti
         X_test = self.X
         n_datas = self.n_datas
         n_dims = self.n_dims
-        
-        
+
+
 
         sum_0=0
         sum_1 = 0
@@ -293,7 +286,7 @@ class KFoldWrapper(object):
             l+=1
             sum_0+=(value[node_index[-2]][0][0]/(value[node_index[-2]][0][0]+value[node_index[-2]][0][1]))
             sum_1+=(value[node_index[-2]][0][1]/(value[node_index[-2]][0][0]+value[node_index[-2]][0][1]))
-        
+
         self.l0[i]+=sum_0/l
         self.l1[i]+=sum_1/l
 
