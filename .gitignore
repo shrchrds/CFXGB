@@ -2,4 +2,11 @@
 /Code/logs
 /Code/.DS_Store
 /Code/CFXGB/.DS_Store
-
+/Code/CFXGB/*.pyc
+/Code/CFXGB/__pycache__
+/Code/CFXGB/utils/*.pyc
+/Code/CFXGB/utils/__pycache__
+/Code/CFXGB/estimators/*.pyc
+/Code/CFXGB/estimators/__pycache__
+/Code/CFXGB/estimators/*.pyc
+/Code/CFXGB/cascade/__pycache__
