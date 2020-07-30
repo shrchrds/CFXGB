@@ -5,7 +5,7 @@ from cfxgb.Main import main
 ################################################################################
 # DEFAULTS
 ################################################################################
-parameters = 'DefaultParameters.json'
+parameters = 'sample_Parameters.json'
 Dataset = 'sample_data'
 ignore = False
 RandomSamp = True
