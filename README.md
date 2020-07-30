@@ -22,25 +22,34 @@ We have included demo code for execution and a detailed explanation of how you c
 
 ### Requirements
 
-* All required packages are in requirements.txt
 
-```pip install -r requirements.txt```
-
-*If facing issues downloading xgboost package, use this conda command*
-
-```conda install py-xgboost```
-
-* python==3.7.3
-* numpy==1.16.4
-* pandas==0.24.2
+* python==3.6.10
+* numpy
+* pandas
 * argparse
-* joblib==0.13.2
-* psutil==5.7.0
-* scikit-learn==0.21.2
-* imblearn==0.5.0
-* scipy==1.2.1
+* joblib
+* psutil
+* scikit-learn
+* imblearn
+* scipy
 * simplejson
-* xgboost==0.90
+
+
+### Installation
+
+1. Clone the Repository
+
+    ```git clone https://github.com/suryadheeshjith/CFXGB.git```
+
+2. Install dependencies
+
+    ```python setup.py install```
+
+3. You will also need to download the xgboost package. Use this conda command to do so
+
+    ```conda install py-xgboost```
+
+
 
 ### Datasets Used    
 
@@ -52,44 +61,18 @@ We have included demo code for execution and a detailed explanation of how you c
 
 ### Repository Structure
 
-    .
-    ├── Code
-    │   ├── CFXGB
-    │   │   ├── CFXGB.py
-    │   │   ├── __init__.py
-    │   │   ├── cascade
-    │   │   │   ├── __init__.py
-    │   │   │   ├── cascade_classifier.py
-    │   │   ├── config.py
-    │   │   ├── data_cache.py
-    │   │   ├── estimators
-    │   │   │   ├── __init__.py
-    │   │   │   ├── base_estimator.py
-    │   │   │   ├── kfold_wrapper.py
-    │   │   │   ├── sklearn_estimators.py
-    │   │   ├── exp_utils.py
-    │   │   └── utils
-    │   │       ├── __init__.py
-    │   │       ├── cache_utils.py
-    │   │       ├── config_utils.py
-    │   │       ├── debug_utils.py
-    │   │       ├── log_utils.py
-    │   │       ├── metrics.py
-    │   ├── DefaultParameters.json
-    │   ├── Main.py
-    │   ├── Parameters.json
-    │   ├── ParametersTest.json
-    ├── README.md
-    ├── images
-    └── requirements.txt
+
 
 
 
 ### Running demo code
 
-To run the model, first change directories to the Code directory
+To run the model, first change directories to the src directory
 
-```cd code```
+```
+cd src
+cd cfxgb
+```
 
 Now to run a dataset like Kad with parameters in DefaultParameters.json, run this :
 

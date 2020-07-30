@@ -2,8 +2,8 @@
 import os, os.path as osp
 import numpy as np
 
-from ..utils.log_utils import get_logger
-from ..utils.cache_utils import name2path
+from cfxgb.lib.utils.log_utils import get_logger
+from cfxgb.lib.utils.cache_utils import name2path
 
 LOGGER = get_logger("CFXGB.estimators.base_estimator")
 

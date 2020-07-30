@@ -1,12 +1,11 @@
 import numpy as np
-
-from .cascade.cascade_classifier import CascadeClassifier
-from .config import GCTrainConfig
-from .utils.log_utils import get_logger
 from xgboost import XGBClassifier
 from sklearn import metrics
 from sklearn.metrics import roc_auc_score
 
+from cfxgb.lib.cascade.cascade_classifier import CascadeClassifier
+from cfxgb.lib.config import GCTrainConfig
+from cfxgb.lib.utils.log_utils import get_logger
 
 
 LOGGER = get_logger("CFXGB.CFXGB")
@@ -30,7 +29,7 @@ class CFXGB(object):
             if "test" in train_config.phases:
                 train_config.phases.remove("test")
             X_test, y_test = None, None
-        
+
         if self.ca is not None:
             _, X_train, _, X_test, _, = self.ca.fit_transform(X_train, y_train, X_test, y_test, train_config=train_config)
 
@@ -40,7 +39,7 @@ class CFXGB(object):
             return X_train, X_test
 
     def transform(self, X):
-        
+
         y_proba = self.ca.transform(X)
         return y_proba
 
@@ -75,7 +74,7 @@ class CFXGB(object):
         X_train_enc = np.hstack((X1, X2))
         X_test_enc = np.hstack((X3, X4))
         return X_train_enc,X_test_enc
-    
+
     def classify(self,X1,y1,X2,y2):
 
         maxauc = 0
@@ -101,6 +100,3 @@ class CFXGB(object):
         print(maxlr)
 
         return y_pred
-
-
-

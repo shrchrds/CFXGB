@@ -1,4 +1,4 @@
-from .data_cache import DataCache
+from cfxgb.lib.data_cache import DataCache
 
 
 class GCTrainConfig(object):

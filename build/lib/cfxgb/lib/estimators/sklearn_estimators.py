@@ -1,8 +1,8 @@
 # -*- coding:utf-8 -*-
-from sklearn.externals import joblib
+import joblib
 
-from .base_estimator import BaseClassifierWrapper
-from ..utils.log_utils import get_logger
+from cfxgb.lib.estimators.base_estimator import BaseClassifierWrapper
+from cfxgb.lib.utils.log_utils import get_logger
 
 LOGGER = get_logger('CFXGB.estimators.sklearn_estimators')
 

@@ -6,10 +6,10 @@ Requirements: This package is developed with Python 2.7, please make sure all th
 ATTN: This package is free for academic usage. You can run it at your own risk. For other purposes, please contact Prof. Zhi-Hua Zhou(zhouzh@lamda.nju.edu.cn)
 ATTN2: This package was developed by Mr.Ji Feng(fengj@lamda.nju.edu.cn). The readme file and demo roughly explains how to use the codes. For any problem concerning the codes, please feel free to contact Mr.Feng.
 """
-from .base_estimator import BaseClassifierWrapper
-from .sklearn_estimators import GCExtraTreesClassifier, GCRandomForestClassifier, GCXGBClassifier
+from cfxgb.lib.estimators.base_estimator import BaseClassifierWrapper
+from cfxgb.lib.estimators.sklearn_estimators import GCExtraTreesClassifier, GCRandomForestClassifier, GCXGBClassifier
 #from .xgb_estimator import GCXGBClassifier
-from .kfold_wrapper import KFoldWrapper
+from cfxgb.lib.estimators.kfold_wrapper import KFoldWrapper
 
 def get_estimator_class(est_type):
     if est_type == "ExtraTreesClassifier":

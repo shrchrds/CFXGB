@@ -2,7 +2,7 @@
 import numpy as np
 from scipy.sparse import issparse
 
-from .utils.log_utils import get_logger
+from cfxgb.lib.utils.log_utils import get_logger
 
 LOGGER = get_logger('CFXGB.exp_utils')
 

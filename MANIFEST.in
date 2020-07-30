@@ -1,0 +1,6 @@
+include README.md
+recursive-exclude images *.png
+recursive-exclude test *.csv
+recursive-exclude test *.json
+recursive-exclude test *.py
+recursive-exclude src *.csv

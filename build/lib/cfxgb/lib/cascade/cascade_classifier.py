@@ -3,17 +3,17 @@ import numpy as np
 import os
 import os.path as osp
 import pickle
-
-from ..estimators import get_estimator_kfold
-from ..utils.config_utils import get_config_value
-from ..utils.log_utils import get_logger
-from ..utils.metrics import accuracy_pb
-from ..estimators.sklearn_estimators import GCXGBClassifier
 from sklearn.feature_selection import RFECV
 import time
 
+from cfxgb.lib.estimators import get_estimator_kfold
+from cfxgb.lib.utils.config_utils import get_config_value
+from cfxgb.lib.utils.log_utils import get_logger
+from cfxgb.lib.utils.metrics import accuracy_pb
+from cfxgb.lib.estimators.sklearn_estimators import GCXGBClassifier
 
-LOGGER = get_logger('CFXGB.cascade.cascade_classifier')
+
+LOGGER = get_logger('cfxgb')
 
 ls = []
 

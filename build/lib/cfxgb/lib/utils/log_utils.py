@@ -34,7 +34,7 @@ def update_default_logging_dir(default_logging_dir):
     global DEFAULT_LOGGING_DIR
     DEFAULT_LOGGING_DIR = default_logging_dir
 
-def get_logger(name="CFXGB", level=None):
+def get_logger(name="cfxgb", level=None):
     level = level or DEFAULT_LEVEL
     logger = logging.getLogger(name)
     logger.setLevel(level)

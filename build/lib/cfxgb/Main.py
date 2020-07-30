@@ -22,16 +22,18 @@ import os.path as osp
 from sklearn.metrics import classification_report, confusion_matrix,accuracy_score,roc_auc_score
 import pandas as pd
 import random
-from CFXGB.CFXGB import CFXGB
-from CFXGB.utils.config_utils import load_json
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 from xgboost import XGBClassifier
 from sklearn.feature_selection import RFECV
 from imblearn.under_sampling import RandomUnderSampler
-from CFXGB.utils.log_utils import get_logger
 import logging
 import time
+
+from cfxgb.lib.CFXGB import CFXGB
+from cfxgb.lib.utils.config_utils import load_json
+from cfxgb.lib.utils.log_utils import get_logger
+
 t = time.time()
 
 
@@ -61,10 +63,10 @@ def parse_args():
 ################################################################################################################
 
 if __name__ == "__main__":
-    
+
     #Logging
-    logger = get_logger("CFXGB.CFXGB")
-    
+    logger = get_logger("cfxgb")
+
     #PARSING ARGUMENTS
     args = parse_args()
 
@@ -140,7 +142,7 @@ if __name__ == "__main__":
             weights = sum - weights
             data = data.sample(n=args.sample,weights=weights,random_state=0)
         logger.info("Distribution after sampling : \n{}".format(data.iloc[:,-1].value_counts()))
-        
+
 
 ################################################################################################################
 
@@ -254,7 +256,7 @@ if __name__ == "__main__":
     logger.info(auc)
     logger.info("Time - {}".format(time.time()-t))
     logger.info("Arguments used in this run : {}".format(str(sys.argv)))
-    
+
     logging.shutdown()
 
 #$#$#$#$#$#$#$$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$$#$$$#$#$#$#$$#$#$#$$#$#$#$#$#$#$#$#$#$#$#
