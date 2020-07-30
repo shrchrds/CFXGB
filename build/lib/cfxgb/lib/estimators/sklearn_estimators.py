@@ -4,7 +4,7 @@ import joblib
 from cfxgb.lib.estimators.base_estimator import BaseClassifierWrapper
 from cfxgb.lib.utils.log_utils import get_logger
 
-LOGGER = get_logger('CFXGB.estimators.sklearn_estimators')
+LOGGER = get_logger('cfxgb')
 
 def forest_predict_batch_size(clf, X):
     import psutil

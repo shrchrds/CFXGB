@@ -8,7 +8,7 @@ from cfxgb.lib.config import GCTrainConfig
 from cfxgb.lib.utils.log_utils import get_logger
 
 
-LOGGER = get_logger("CFXGB.CFXGB")
+LOGGER = get_logger("cfxgb")
 
 
 class CFXGB(object):

@@ -5,7 +5,7 @@ import numpy as np
 from cfxgb.lib.utils.log_utils import get_logger
 from cfxgb.lib.utils.cache_utils import name2path
 
-LOGGER = get_logger("CFXGB.estimators.base_estimator")
+LOGGER = get_logger("cfxgb")
 
 def check_dir(path):
     d = osp.abspath(osp.join(path, osp.pardir))

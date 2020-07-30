@@ -4,7 +4,7 @@ from scipy.sparse import issparse
 
 from cfxgb.lib.utils.log_utils import get_logger
 
-LOGGER = get_logger('CFXGB.exp_utils')
+LOGGER = get_logger('cfxgb')
 
 def load_model_config(model_path, log_name=None):
     import json
