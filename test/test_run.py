@@ -32,5 +32,3 @@ def test_run():
     args = _args_helper_(parameters, Dataset, ignore, RandomSamp, ParentCols, featureSelect, sample)
 
     main(args)
-
-test_run()
