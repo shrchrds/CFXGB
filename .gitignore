@@ -14,3 +14,6 @@
 /src/cfxgb/lib/cascade/*.pyc
 /src/cfxgb/Datasets/*.csv
 /src/cfxgb.egg-info
+/test/logs
+/build
+/dist

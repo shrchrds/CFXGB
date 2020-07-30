@@ -192,11 +192,11 @@ def main(args):
 
 
     else:
-        X_train = np.array(X_train)
-        y_train = np.array(y_train)
-        y_test = np.array(y_test)
         logger.info("No Random Under-Sampling")
 
+    X_train = np.array(X_train)
+    y_train = np.array(y_train)
+    y_test = np.array(y_test)
     X_test = np.array(X_test)
 
 #$#$#$#$#$#$#$$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$#$$#$$$#$#$#$#$$#$#$#$$#$#$#$#$#$#$#$#$#$#$#

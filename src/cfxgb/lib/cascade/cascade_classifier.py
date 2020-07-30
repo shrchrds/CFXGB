@@ -111,6 +111,7 @@ class CascadeClassifier(object):
         else:
             group_starts, group_ends, group_dims = self.group_starts, self.group_ends, self.group_dims
         n_datas = X_groups[0].shape[0]
+        print("XXXXGRRRPIIIPID : ",X_groups[0])
         X = np.zeros((n_datas, 0), dtype=X_groups[0].dtype)
         for i, X_group in enumerate(X_groups):
             assert(X_group.shape[0] == n_datas)
