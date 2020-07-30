@@ -93,10 +93,12 @@ def main(args):
 #DATASET
 ################################################################################################################
 
-    full_path = osp.join('Datasets',args.Dataset+'.csv')
-    if not osp.exists(full_path):
-        logger.error("Enter valid Dataset")
-        exit(0)
+
+    if not osp.exists(args.Dataset):
+        full_path = osp.join('Datasets',args.Dataset+'.csv')
+        if not osp.exists(full_path):
+            logger.error("Enter valid Dataset")
+            exit(0)
 
 
     logger.info(args.Dataset + " used")
