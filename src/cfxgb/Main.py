@@ -99,6 +99,8 @@ def main(args):
         if not osp.exists(full_path):
             logger.error("Enter valid Dataset")
             exit(0)
+    else:
+        full_path = args.Dataset
 
 
     logger.info(args.Dataset + " used")
