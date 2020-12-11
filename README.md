@@ -7,12 +7,6 @@ This is the official implementation for [CFXGB : Cascaded Forest and XGBoost Cla
 
 For more details, contact Surya Dheeshjith : surya.dheeshjith@gmail.com (or) Thejas Gubbi Sadashiva : tgs001@fiu.edu
 
-### References
-[1] CFXGB: An Optimized and Effective Learning Approach for Click Fraud Detection.  
-[2]  Z.-H. Zhou and J. Feng. Deep Forest: Towards an Alternative to Deep Neural Networks.
-In IJCAI-2017. (https://arxiv.org/abs/1702.08835v2 )
-
-
 
 ## Details
 
@@ -61,8 +55,7 @@ The implementation of using Parent nodes in the decision trees as stated in the 
   - TalkingData : https://www.kaggle.com/c/talkingdata-adtracking-fraud-detection
   - Avazu : https://www.kaggle.com/c/avazu-ctr-prediction/data
   - Kad : https://www.kaggle.com/tbyrnes/advertising/data
-  - UNSW : https://www.unsw.adfa.edu.au/unsw-canberra-cyber/cybersecurity/ADFA-NB15-Datasets/
-  - CICID : https://www.unb.ca/cic/datasets/ids-2017.html
+
 
 ### Repository Structure
 
@@ -147,6 +140,12 @@ Now to run a dataset like Kad with parameters in DefaultParameters.json, run thi
 ### How to run code for different datasets and model parameters
 
 ```python3 Main.py -d <Dataset_Name> -p <Parameter_list>.json```
+
+### References
+[1] CFXGB: An Optimized and Effective Learning Approach for Click Fraud Detection. (https://www.sciencedirect.com/science/article/pii/S2666827020300165)
+[2]  Z.-H. Zhou and J. Feng. Deep Forest: Towards an Alternative to Deep Neural Networks.
+In IJCAI-2017. (https://arxiv.org/abs/1702.08835v2 ) 
+
 
 
 
