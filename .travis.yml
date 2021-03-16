@@ -1,6 +1,6 @@
 language: python
 python:
-  - "3.6.10"      # current default Python on Travis CI
+  - "3.7.3"      # current default Python on Travis CI
 # command to install dependencies
 before_install:
   - python --version
@@ -14,7 +14,7 @@ install:
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  - conda create -n is_test python==3.6.10 -y
+  - conda create -n is_test python==3.7.3 -y
   - conda activate is_test
   - python setup.py install
   - pip install .[testing]
