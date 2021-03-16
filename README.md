@@ -141,9 +141,9 @@ Now to run a dataset like Kad with parameters in DefaultParameters.json, run thi
 ```python3 Main.py -d <Dataset_Name> -p <Parameter_list>.json```
 
 ### References
-[1] CFXGB: An Optimized and Effective Learning Approach for Click Fraud Detection. (https://www.sciencedirect.com/science/article/pii/S2666827020300165)
+[1] [CFXGB: An Optimized and Effective Learning Approach for Click Fraud Detection.] (https://www.sciencedirect.com/science/article/pii/S2666827020300165)
 
-[2]  Z.-H. Zhou and J. Feng. Deep Forest: Towards an Alternative to Deep Neural Networks.
+[2] [Z.-H. Zhou and J. Feng. Deep Forest: Towards an Alternative to Deep Neural Networks.]
 In IJCAI-2017. (https://arxiv.org/abs/1702.08835v2 )
 
 
