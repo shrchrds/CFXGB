@@ -11,13 +11,13 @@ setup(name="cfxgb",
       packages=["cfxgb", "cfxgb.lib","cfxgb.lib.cascade","cfxgb.lib.estimators","cfxgb.lib.utils"],
       package_dir={"": "src"},
       install_requires=[
-            "numpy",
-            "pandas",
-            "joblib",
-            "psutil",
-            "scikit-learn",
-            "imblearn",
-            "scipy"
+            "numpy==1.20.1",
+            "pandas==1.2.3",
+            "joblib==1.0.1",
+            "psutil==5.8.0",
+            "scikit-learn==0.24.1",
+            "imblearn==0.0",
+            "scipy==1.6.1"
             ],
         extras_require={
             "testing": ["pytest-cov"]
