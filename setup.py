@@ -16,7 +16,7 @@ setup(name="cfxgb",
             "joblib==0.13.2",
             "psutil==5.7.0",
             "scikit-learn==0.21.2",
-            "imblearn==0.5.0",
+            "imblearn",
             "scipy==1.2.1"
             ],
         extras_require={
