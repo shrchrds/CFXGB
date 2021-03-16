@@ -22,16 +22,14 @@ The implementation of using Parent nodes in the decision trees as stated in the 
 ### Requirements
 
 
-* python==3.6.10
-* numpy
-* pandas
-* argparse
-* joblib
-* psutil
-* scikit-learn
-* imblearn
-* scipy
-* simplejson
+* python==3.7.3
+* numpy==1.20.1
+* pandas==1.2.3
+* joblib==1.0.1
+* psutil==5.8.0
+* scikit-learn==0.24.1
+* imblearn==0.0
+* scipy==1.6.1
 
 
 ### Installation
