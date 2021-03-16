@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.com/suryadheeshjith/CFXGB.svg?token=knvpVbu96NR4wtBr8v1E&branch=master)](https://travis-ci.com/suryadheeshjith/CFXGB)
-[![codecov](https://codecov.io/gh/suryadheeshjith/CFXGB/branch/master/graph/badge.svg?token=XSIRP3ODQK)](https://codecov.io/gh/suryadheeshjith/CFXGB)
+<!-- [![Build Status](https://travis-ci.com/suryadheeshjith/CFXGB.svg?token=knvpVbu96NR4wtBr8v1E&branch=master)](https://travis-ci.com/suryadheeshjith/CFXGB)
+[![codecov](https://codecov.io/gh/suryadheeshjith/CFXGB/branch/master/graph/badge.svg?token=XSIRP3ODQK)](https://codecov.io/gh/suryadheeshjith/CFXGB) -->
 
 # CFXGB : Cascaded Forest and XGBoost Classifier
 
