@@ -13,11 +13,13 @@ For more details, contact Surya Dheeshjith : surya.dheeshjith@gmail.com (or) The
 We have included demo code for execution and a detailed explanation of how you can use your own dataset with custom model parameters.
 
 
-![Pipeline](/images/Pipeline2.png)
+![Pipeline](/images/Pipeline2.png#gh-light-mode-only)
+![Pipeline](/images/Pipeline2_dark.png#gh-dark-mode-only)
 
 The implementation of using Parent nodes in the decision trees as stated in the paper has also been implemented
 
-![Parent nodes](/images/DecisionTree4.png)
+![Parent nodes](/images/DecisionTree4.png#gh-light-mode-only)
+![Parent nodes](/images/DecisionTree4_dark.png#gh-dark-mode-only)
 
 ### Requirements
 
